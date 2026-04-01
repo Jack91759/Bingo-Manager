@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo Game Modes Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+            font-size: 2.5em;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .modes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .mode-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .mode-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .mode-title {
+            text-align: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .mode-description {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .bingo-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .bingo-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            color: #333;
+        }
+
+        .bingo-cell.winning {
+            background: #4CAF50;
+            color: white;
+            border-color: #2E7D32;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+        }
+
+        .bingo-cell.free {
+            background: #FFC107;
+            color: white;
+            border-color: #FFA000;
+            font-size: 0.7em;
+        }
+
+        .bingo-header {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: -6px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .column-letter {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .winning-pattern {
+            background: #f0f7ff;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .winning-pattern h4 {
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .winning-pattern p {
+            color: #555;
+            font-size: 0.9em;
+            margin: 5px 0;
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #ddd;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            border: 2px solid #999;
+        }
+
+        .legend-item.winning .legend-color {
+            background: #4CAF50;
+            border-color: #2E7D32;
+        }
+
+        .legend-item.free .legend-color {
+            background: #FFC107;
+            border-color: #FFA000;
+        }
+
+        .legend-item.normal .legend-color {
+            background: white;
+            border-color: #ddd;
+        }
+
+        .summary {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-top: 40px;
+        }
+
+        .summary h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.6em;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .summary-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .summary-table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .summary-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .summary-table tr:hover {
+            background: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎰 Bingo Game Modes Guide</h1>
+
+        <div class="modes-grid">
+            <!-- Classic Mode -->
+            <div class="mode-card">
+                <div class="mode-title">Classic</div>
+                <div class="mode-description">
+                    The traditional bingo game. Mark all 25 squares to win.
+                </div>
+                <div class="bingo-header">
+                    <span class="column-letter">B</span>
+                    <span class="column-letter">I</span>
+                    <span class="column-letter">N</span>
+                    <span class="column-letter">G</span>
+                    <span class="column-letter">O</span>
+                </div>
+                <div class="bingo-board">
+                    <div class="bingo-cell winning">1-15</div>
+                    <div class="bingo-cell winning">16-30</div>
+                    <div class="bingo-cell winning">31-45</div>
+                    <div class="bingo-cell winning">46-60</div>
+                    <div class="bingo-cell winning">61-75</div>
+                    
+                    <div class="bingo-cell winning">1-15</div>
+                    <div class="bingo-cell winning">16-30</div>
+                    <div class="bingo-cell winning">31-45</div>
+                    <div class="bingo-cell winning">46-60</div>
+                    <div class="bingo-cell winning">61-75</div>
+                    
+                    <div class="bingo-cell winning">1-15</div>
+                    <div class="bingo-cell winning">16-30</div>
+                    <div class="bingo-cell free">FREE</div>
+                    <div class="bingo-cell winning">46-60</div>
+                    <div class="bingo-cell winning">61-75</div>
+                    
+                    <div class="bingo-cell winning">1-15</div>
+                    <div class="bingo-cell winning">16-30</div>
+                    <div class="bingo-cell winning">31-45</div>
+                    <div class="bingo-cell winning">46-60</div>
+                    <div class="bingo-cell winning">61-75</div>
+                    
+                    <div class="bingo-cell winning">1-15</div>
+                    <div class="bingo-cell winning">16-30</div>
+                    <div class="bingo-cell winning">31-45</div>
+                    <div class="bingo-cell winning">46-60</div>
+                    <div class="bingo-cell winning">61-75</div>
+                </div>
+                <div class="winning-pattern">
+                    <h4>✓ Winning Condition:</h4>
+                    <p><strong>Full House</strong> - Mark all 25 squares on your card</p>
+                    <p style="margin-top: 8px; font-size: 0.85em;">This is the standard bingo game.</p>
+                </div>
+            </div>
+
+            <!-- 4 Corners Mode -->
+            <div class="mode-card">
+                <div class="mode-title">4 Corners</div>
+                <div class="mode-description">
+                    Quickest win in the game! Mark just the four corner squares.
+                </div>
+                <div class="bingo-header">
+                    <span class="column-letter">B</span>
+                    <span class="column-letter">I</span>
+                    <span class="column-letter">N</span>
+                    <span class="column-letter">G</span>
+                    <span class="column-letter">O</span>
+                </div>
+                <div class="bingo-board">
+                    <div class="bingo-cell winning">1-15</div>
+                    <div class="bingo-cell">16-30</div>
+                    <div class="bingo-cell">31-45</div>
+                    <div class="bingo-cell">46-60</div>
+                    <div class="bingo-cell winning">61-75</div>
+                    
+                    <div class="bingo-cell">1-15</div>
+                    <div class="bingo-cell">16-30</div>
+                    <div class="bingo-cell">31-45</div>
+                    <div class="bingo-cell">46-60</div>
+                    <div class="bingo-cell">61-75</div>
+                    
+                    <div class="bingo-cell">1-15</div>
+                    <div class="bingo-cell">16-30</div>
+                    <div class="bingo-cell free">FREE</div>
+                    <div class="bingo-cell">46-60</div>
+                    <div class="bingo-cell">61-75</div>
+                    
+                    <div class="bingo-cell">1-15</div>
+                    <div class="bingo-cell">16-30</div>
+                    <div class="bingo-cell">31-45</div>
+                    <div class="bingo-cell">46-60</div>
+                    <div class="bingo-cell">61-75</div>
+                    
+                    <div class="bingo-cell winning">1-15</div>
+                    <div class="bingo-cell">16-30</div>
+                    <div class="bingo-cell">31-45</div>
+                    <div class="bingo-cell">46-60</div>
+                    <div class="bingo-cell winning">61-75</div>
+                </div>
+                <div class="winning-pattern">
+                    <h4>✓ Winning Condition:</h4>
+                    <p><strong>4 Corners</strong> - Mark all 4 corner squares:</p>
+                    <p style="margin-top: 8px;">Top-Left, Top-Right, Bottom-Left, Bottom-Right</p>
+                    <p style="font-size: 0.85em; color: #888; margin-top: 8px;">Fastest way to win!</p>
+                </div>
+            </div>
+
+            <!-- Speed Mode -->
+            <div class="mode-card">
+                <div class="mode-title">Speed</div>
+                <div class="mode-description">
+                    Fast-paced game. Get a line in any direction to win.
+                </div>
+                <div class="bingo-header">
+                    <span class="column-letter">B</span>
+                    <span class="column-letter">I</span>
+                    <span class="column-letter">N</span>
+                    <span class="column-letter">G</span>
+                    <span class="column-letter">O</span>
+                </div>
+                <div class="bingo-board">
+                    <div class="bingo-cell winning">1-15</div>
+                    <div class="bingo-cell winning">16-30</div>
+                    <div class="bingo-cell winning">31-45</div>
+                    <div class="bingo-cell winning">46-60</div>
+                    <div class="bingo-cell winning">61-75</div>
+                    
+                    <div class="bingo-cell">1-15</div>
+                    <div class="bingo-cell">16-30</div>
+                    <div class="bingo-cell">31-45</div>
+                    <div class="bingo-cell">46-60</div>
+                    <div class="bingo-cell">61-75</div>
+                    
+                    <div class="bingo-cell">1-15</div>
+                    <div class="bingo-cell">16-30</div>
+                    <div class="bingo-cell free">FREE</div>
+                    <div class="bingo-cell">46-60</div>
+                    <div class="bingo-cell">61-75</div>
+                    
+                    <div class="bingo-cell">1-15</div>
+                    <div class="bingo-cell">16-30</div>
+                    <div class="bingo-cell">31-45</div>
+                    <div class="bingo-cell">46-60</div>
+                    <div class="bingo-cell">61-75</div>
+                    
+                    <div class="bingo-cell">1-15</div>
+                    <div class="bingo-cell">16-30</div>
+                    <div class="bingo-cell">31-45</div>
+                    <div class="bingo-cell">46-60</div>
+                    <div class="bingo-cell">61-75</div>
+                </div>
+                <div class="winning-pattern">
+                    <h4>✓ Winning Condition:</h4>
+                    <p><strong>Any Line</strong> - Mark all 5 squares in:</p>
+                    <p style="margin-top: 8px;">• Any row (horizontal)</p>
+                    <p>• Any column (vertical)</p>
+                    <p>• Any diagonal (if applicable)</p>
+                    <p style="font-size: 0.85em; color: #888; margin-top: 8px;">Quick wins possible!</p>
+                </div>
+            </div>
+
+            <!-- Coverall Mode -->
+            <div class="mode-card">
+                <div class="mode-title">Coverall</div>
+                <div class="mode-description">
+                    The ultimate challenge. Mark every single square to win.
+                </div>
+                <div class="bingo-header">
+                    <span class="column-letter">B</span>
+                    <span class="column-letter">I</span>
+                    <span class="column-letter">N</span>
+                    <span class="column-letter">G</span>
+                    <span class="column-letter">O</span>
+                </div>
+                <div class="bingo-board">
+                    <div class="bingo-cell winning">1-15</div>
+                    <div class="bingo-cell winning">16-30</div>
+                    <div class="bingo-cell winning">31-45</div>
+                    <div class="bingo-cell winning">46-60</div>
+                    <div class="bingo-cell winning">61-75</div>
+                    
+                    <div class="bingo-cell winning">1-15</div>
+                    <div class="bingo-cell winning">16-30</div>
+                    <div class="bingo-cell winning">31-45</div>
+                    <div class="bingo-cell winning">46-60</div>
+                    <div class="bingo-cell winning">61-75</div>
+                    
+                    <div class="bingo-cell winning">1-15</div>
+                    <div class="bingo-cell winning">16-30</div>
+                    <div class="bingo-cell free">FREE</div>
+                    <div class="bingo-cell winning">46-60</div>
+                    <div class="bingo-cell winning">61-75</div>
+                    
+                    <div class="bingo-cell winning">1-15</div>
+                    <div class="bingo-cell winning">16-30</div>
+                    <div class="bingo-cell winning">31-45</div>
+                    <div class="bingo-cell winning">46-60</div>
+                    <div class="bingo-cell winning">61-75</div>
+                    
+                    <div class="bingo-cell winning">1-15</div>
+                    <div class="bingo-cell winning">16-30</div>
+                    <div class="bingo-cell winning">31-45</div>
+                    <div class="bingo-cell winning">46-60</div>
+                    <div class="bingo-cell winning">61-75</div>
+                </div>
+                <div class="winning-pattern">
+                    <h4>✓ Winning Condition:</h4>
+                    <p><strong>Full Coverall</strong> - Mark all 25 squares on your card</p>
+                    <p style="margin-top: 8px; font-size: 0.85em;">The longest game, highest jackpot opportunity!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);">
+            <h3 style="color: #667eea; margin-bottom: 20px; font-size: 1.3em;">Legend</h3>
+            <div class="legend">
+                <div class="legend-item winning">
+                    <div class="legend-color"></div>
+                    <span><strong>Green</strong> = Squares needed to win</span>
+                </div>
+                <div class="legend-item free">
+                    <div class="legend-color"></div>
+                    <span><strong>Yellow</strong> = Free space (always marked)</span>
+                </div>
+                <div class="legend-item normal">
+                    <div class="legend-color"></div>
+                    <span><strong>White</strong> = Not needed for this mode</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Table -->
+        <div class="summary">
+            <h2>Game Modes Comparison</h2>
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>Mode</th>
+                        <th>Squares to Mark</th>
+                        <th>Difficulty</th>
+                        <th>Win Speed</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>4 Corners</strong></td>
+                        <td>4 squares</td>
+                        <td>Easy ✓</td>
+                        <td>Very Fast ⚡</td>
+                        <td>Mark the 4 corner squares only</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Speed</strong></td>
+                        <td>5 squares (one line)</td>
+                        <td>Easy ✓</td>
+                        <td>Fast ⚡⚡</td>
+                        <td>Complete any single line (row, column, or diagonal)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Classic</strong></td>
+                        <td>25 squares</td>
+                        <td>Medium ✓✓</td>
+                        <td>Moderate ⚡⚡⚡</td>
+                        <td>Traditional - mark the entire card</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Coverall</strong></td>
+                        <td>25 squares</td>
+                        <td>Hard ✓✓✓</td>
+                        <td>Slow ⚡⚡⚡⚡</td>
+                        <td>Mark every square for the ultimate prize</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
