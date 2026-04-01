@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Paper Card</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2em;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn-nav {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-nav:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section h2 {
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .bingo-grid-container {
+            margin-bottom: 20px;
+        }
+
+        .bingo-grid-label {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .bingo-input-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .column-label {
+            color: #667eea;
+            font-weight: 700;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .bingo-number-input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95em;
+            text-align: center;
+            font-weight: 600;
+            width: 60px;
+            aspect-ratio: 1;
+            transition: border-color 0.3s ease;
+        }
+
+        .bingo-number-input.free {
+            background: #e8eaf6;
+            border-color: #667eea;
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        .bingo-number-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .buttons-section {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-submit:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-cancel {
+            background: #999;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #777;
+            transform: translateY(-2px);
+        }
+
+        .message {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .message.success {
+            background: #c8e6c9;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+        }
+
+        .message.error {
+            background: #ffcdd2;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+
+        .quick-fill {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .quick-fill button {
+            padding: 8px 15px;
+            background: #ddd;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .quick-fill button:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .bingo-grid {
+                gap: 8px;
+                padding: 10px;
+            }
+
+            .bingo-number-input {
+                width: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>➕ Add Paper Card</h1>
+            </div>
+            <div class="header-buttons">
+                <a href="/admin-paper-cards" class="btn-nav">← Back to Checker</a>
+            </div>
+        </div>
+
+        <div class="form-container">
+            <div id="messageBox"></div>
+
+            <form id="cardForm">
+                <div class="form-section">
+                    <h2>Card Information</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cardId">Card ID *</label>
+                            <input type="text" id="cardId" name="cardId" required placeholder="e.g., CARD001">
+                        </div>
+                        <div class="form-group">
+                            <label for="playerName">Player Name *</label>
+                            <input type="text" id="playerName" name="playerName" required placeholder="e.g., John Doe">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Numbers (5x5 Grid)</h2>
+                    <div class="quick-fill">
+                        <button type="button" onclick="generateRandomCard()">Generate Random Card</button>
+                        <button type="button" onclick="clearGrid()">Clear All</button>
+                    </div>
+                    
+                    <div class="bingo-grid-container">
+                        <label class="bingo-grid-label">Enter numbers 1-75. Center (FREE) is auto-filled.</label>
+                        <div class="bingo-grid" id="bingoGrid">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="buttons-section">
+                    <button type="submit" class="btn btn-submit">✓ Add Card</button>
+                    <a href="/admin-paper-cards" class="btn btn-cancel">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const COLUMNS = ['B', 'I', 'N', 'G', 'O'];
+        const GRID_SIZE = 25;
+
+        function initializeGrid() {
+            const grid = document.getElementById('bingoGrid');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < GRID_SIZE; i++) {
+                const row = Math.floor(i / 5);
+                const col = i % 5;
+                const isCenter = row === 2 && col === 2;
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'bingo-input-wrapper';
+
+                if (row === 0) {
+                    const label = document.createElement('div');
+                    label.className = 'column-label';
+                    label.textContent = COLUMNS[col];
+                    wrapper.appendChild(label);
+                }
+
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.className = 'bingo-number-input' + (isCenter ? ' free' : '');
+                input.id = `cell-${i}`;
+                input.min = isCenter ? '0' : '1';
+                input.max = '75';
+                input.placeholder = isCenter ? 'FREE' : '';
+                input.disabled = isCenter;
+                
+                if (isCenter) {
+                    input.value = '0';
+                }
+
+                input.addEventListener('input', function() {
+                    if (this.value && this.value < 1) {
+                        this.value = '';
+                    }
+                    if (this.value > 75) {
+                        this.value = '75';
+                    }
+                });
+
+                wrapper.appendChild(input);
+                grid.appendChild(wrapper);
+            }
+        }
+
+        function generateRandomCard() {
+            const numbers = new Array(25).fill(0);
+            
+            // Generate one number per row for each column
+            for (let row = 0; row < 5; row++) {
+                for (let col = 0; col < 5; col++) {
+                    if (row === 2 && col === 2) {
+                        numbers[row * 5 + col] = 0;
+                    } else {
+                        const start = col * 15 + 1;
+                        const end = start + 15;
+                        
+                        let num;
+                        let attempts = 0;
+                        do {
+                            num = Math.floor(Math.random() * (end - start + 1)) + start;
+                            attempts++;
+                        } while (getColumnNumbers(col).includes(num) && attempts < 10);
+                        
+                        numbers[row * 5 + col] = num;
+                    }
+                }
+            }
+            
+            fillGrid(numbers);
+        }
+
+        function getColumnNumbers(col) {
+            const numbers = [];
+            for (let row = 0; row < 5; row++) {
+                const input = document.getElementById(`cell-${row * 5 + col}`);
+                if (input.value) {
+                    numbers.push(parseInt(input.value));
+                }
+            }
+            return numbers;
+        }
+
+        function fillGrid(numbers) {
+            for (let i = 0; i < 25; i++) {
+                const input = document.getElementById(`cell-${i}`);
+                if (i !== 12) {
+                    input.value = numbers[i];
+                }
+            }
+        }
+
+        function clearGrid() {
+            for (let i = 0; i < 25; i++) {
+                if (i !== 12) {
+                    const input = document.getElementById(`cell-${i}`);
+                    input.value = '';
+                }
+            }
+        }
+
+        function getGridNumbers() {
+            const numbers = [];
+            for (let i = 0; i < 25; i++) {
+                const input = document.getElementById(`cell-${i}`);
+                numbers.push(input.value ? parseInt(input.value) : 0);
+            }
+            return numbers;
+        }
+
+        function showMessage(message, type) {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.innerHTML = `<div class="message ${type}">${message}</div>`;
+            if (type === 'success') {
+                setTimeout(() => {
+                    window.location.href = '/admin-paper-cards';
+                }, 1500);
+            }
+        }
+
+        document.getElementById('cardForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const cardId = document.getElementById('cardId').value.trim();
+            const playerName = document.getElementById('playerName').value.trim();
+            const numbers = getGridNumbers();
+
+            // Validate
+            if (!cardId || !playerName) {
+                showMessage('Card ID and Player Name are required', 'error');
+                return;
+            }
+
+            if (numbers.filter(n => n !== 0).length < 24) {
+                showMessage('Please fill in all 24 numbers (center is FREE)', 'error');
+                return;
+            }
+
+            const duplicates = numbers.filter(n => n !== 0);
+            if (new Set(duplicates).size !== duplicates.length) {
+                showMessage('Duplicate numbers detected. Each number should be unique.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/add-paper-card', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        card_id: cardId,
+                        player_name: playerName,
+                        numbers: numbers
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage(`✓ Paper card "${cardId}" added successfully!`, 'success');
+                } else {
+                    showMessage(`Error: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                showMessage(`Error: ${error.message}`, 'error');
+            }
+        });
+
+        // Initialize grid on page load
+        window.addEventListener('DOMContentLoaded', initializeGrid);
+    </script>
+</body>
+</html>

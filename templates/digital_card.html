@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Bingo Card</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .player-info {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .card-id {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .status {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status.no-bingo {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.bingo {
+            background: #d4edda;
+            color: #155724;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .column-header {
+            font-weight: bold;
+            font-size: 1.5em;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .number-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+            background: white;
+            color: #333;
+            position: relative;
+        }
+
+        .number-cell:hover:not(.marked):not(.free) {
+            background: #e8e8ff;
+            border-color: #667eea;
+            transform: scale(1.08);
+        }
+
+        .number-cell.marked {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .number-cell.free {
+            background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+            color: white;
+            border-color: #4CAF50;
+            font-size: 1em;
+            cursor: default;
+        }
+
+        .checkmark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5em;
+        }
+
+        .info-section {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+        }
+
+        .info-section p {
+            margin-bottom: 8px;
+            color: #666;
+        }
+
+        .info-section strong {
+            color: #333;
+        }
+
+        .last-called {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1em;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .last-called.new {
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .number-highlight {
+            animation: highlight 0.6s ease-out;
+        }
+
+        @keyframes highlight {
+            0% {
+                background: #FFD700 !important;
+                color: #333 !important;
+                border-color: #FFA500 !important;
+            }
+            100% {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border-color: #667eea;
+            }
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+
+        .legend-box {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            border: 2px solid;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-home {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-home:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .btn-admin {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-admin:hover {
+            background: #da190b;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .bingo-grid {
+                gap: 8px;
+            }
+
+            .number-cell {
+                font-size: 1em;
+            }
+
+            .legend {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎰 Your Bingo Card</h1>
+            <p class="player-info">Player: <strong>{{ card.player_name }}</strong></p>
+            <p class="card-id">Card ID: {{ card.card_id }}</p>
+            <div class="status {% if card.has_bingo %}bingo{% else %}no-bingo{% endif %}" id="status">
+                {% if card.has_bingo %}✓ BINGO! You have a winning card!{% else %}Click numbers as they are called{% endif %}
+            </div>
+        </div>
+
+        <div class="info-section">
+            <p><strong>Numbers Called:</strong> <span id="calledCount">{{ called|length }}</span></p>
+            <p><strong>Marked:</strong> <span id="markedCount">{{ marked|length }}</span>/25</p>
+        </div>
+
+        <div class="last-called" id="lastCalled">
+            Waiting for first number...
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-box" style="background: white; border-color: #ccc;"></div>
+                <span>Unmarked</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-color: #667eea;"></div>
+                <span>Marked</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%); border-color: #4CAF50;"></div>
+                <span>Free Space</span>
+            </div>
+        </div>
+
+        <div class="bingo-grid" id="bingoGrid">
+            <!-- Column headers -->
+            <div class="column-header">B</div>
+            <div class="column-header">I</div>
+            <div class="column-header">N</div>
+            <div class="column-header">G</div>
+            <div class="column-header">O</div>
+
+            <!-- Numbers will be generated by JavaScript -->
+        </div>
+
+        <div class="buttons">
+            <button class="btn-home" onclick="checkBingo()">✓ Check for Bingo</button>
+            <button class="btn-home" onclick="window.location.href='/'">← Back Home</button>
+            <button class="btn-admin" onclick="window.location.href='/admin-cards'">📋 All Cards</button>
+        </div>
+    </div>
+
+    <script>
+        const cardId = '{{ card.card_id }}';
+        const numbers = {{ numbers|tojson }};
+        const marked = new Set({{ marked|list|tojson }});
+        let called = new Set({{ called|tojson }});
+        let lastCallTime = 0;
+        let pollInterval;
+
+        function renderCard() {
+            const grid = document.getElementById('bingoGrid');
+            
+            // Keep headers, clear cells
+            const headers = grid.querySelectorAll('.column-header');
+            while (grid.children.length > 5) {
+                grid.removeChild(grid.lastChild);
+            }
+
+            numbers.forEach((num, idx) => {
+                const cell = document.createElement('div');
+                cell.className = 'number-cell';
+                cell.id = `cell-${num}`;
+
+                if (num === 0) {
+                    cell.className += ' free';
+                    cell.innerHTML = '<span>FREE</span>';
+                } else {
+                    cell.textContent = num;
+                    
+                    if (marked.has(num)) {
+                        cell.className += ' marked';
+                        cell.innerHTML = `<span>${num}</span><span class="checkmark">✓</span>`;
+                    } else if (called.has(num)) {
+                        cell.className += ' called';
+                    }
+
+                    cell.onclick = () => toggleMarkNumber(num, idx, cell);
+                }
+
+                grid.appendChild(cell);
+            });
+
+            updateMarkedCount();
+            updateProgressBar();
+        }
+
+        function toggleMarkNumber(num, idx, cell) {
+            if (num === 0) return; // Free space always marked
+
+            // Check if number is already marked
+            const isMarked = marked.has(num);
+            
+            if (isMarked) {
+                unmarkNumber(num, idx, cell);
+            } else {
+                markNumber(num, idx, cell);
+            }
+        }
+
+        function markNumber(num, idx, cell) {
+            fetch('/api/mark-number', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    card_id: cardId,
+                    number: num
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    marked.clear();
+                    data.marked.forEach(n => marked.add(n));
+                    
+                    if (data.has_bingo) {
+                        document.getElementById('status').className = 'status bingo';
+                        document.getElementById('status').textContent = '✓ BINGO! You have a winning card!';
+                        showBingoNotification();
+                    }
+
+                    renderCard();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function unmarkNumber(num, idx, cell) {
+            fetch('/api/unmark-number', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    card_id: cardId,
+                    number: num
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    marked.clear();
+                    data.marked.forEach(n => marked.add(n));
+                    
+                    // Update status if bingo was unchecked
+                    if (!data.has_bingo) {
+                        document.getElementById('status').className = 'status no-bingo';
+                        document.getElementById('status').textContent = 'Click numbers as they are called';
+                    }
+
+                    renderCard();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function checkBingo() {
+            // Check against called numbers
+            const numbers_arr = Array.from(numbers);
+            const called_arr = Array.from(called);
+            
+            // Check rows
+            let hasBingo = false;
+            for (let row = 0; row < 5; row++) {
+                if (all(numbers_arr.slice(row * 5, row * 5 + 5).map((n, col) => 
+                    called_arr.includes(n) || n === 0))) {
+                    hasBingo = true;
+                    break;
+                }
+            }
+            
+            // Check columns
+            if (!hasBingo) {
+                for (let col = 0; col < 5; col++) {
+                    const col_nums = [];
+                    for (let row = 0; row < 5; row++) {
+                        col_nums.push(numbers_arr[row * 5 + col]);
+                    }
+                    if (all(col_nums.map(n => called_arr.includes(n) || n === 0))) {
+                        hasBingo = true;
+                        break;
+                    }
+                }
+            }
+            
+            // Check diagonals
+            if (!hasBingo) {
+                const diag1 = [numbers_arr[0], numbers_arr[6], numbers_arr[12], numbers_arr[18], numbers_arr[24]];
+                if (all(diag1.map(n => called_arr.includes(n) || n === 0))) {
+                    hasBingo = true;
+                }
+            }
+            
+            if (!hasBingo) {
+                const diag2 = [numbers_arr[4], numbers_arr[8], numbers_arr[12], numbers_arr[16], numbers_arr[20]];
+                if (all(diag2.map(n => called_arr.includes(n) || n === 0))) {
+                    hasBingo = true;
+                }
+            }
+            
+            if (hasBingo) {
+                showBingoNotification();
+            } else {
+                const marked_count = called_arr.filter(n => numbers_arr.includes(n)).length;
+                alert(`No bingo pattern yet. ${marked_count} of your numbers have been called. Keep watching!`);
+            }
+        }
+
+        function showBingoNotification() {
+            alert('🎉 BINGO! Your card has a winning pattern based on called numbers!');
+        }
+
+        function all(arr) {
+            return arr.every(val => val);
+        }
+
+        function updateMarkedCount() {
+            document.getElementById('markedCount').textContent = marked.size;
+        }
+
+        function updateCalledCount() {
+            document.getElementById('calledCount').textContent = called.size;
+        }
+
+        function updateProgressBar() {
+            const maxNumbers = 75; // Standard bingo
+            const progress = (called.size / maxNumbers) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function updateLastCalled() {
+            const lastCalledElement = document.getElementById('lastCalled');
+            if (called.size === 0) {
+                lastCalledElement.textContent = 'Waiting for first number...';
+                return;
+            }
+            
+            const lastNumber = Math.max(...Array.from(called));
+            lastCalledElement.textContent = `Last Called: ${lastNumber}`;
+            lastCalledElement.classList.add('new');
+            
+            // Animate the number cell
+            const cellId = `cell-${lastNumber}`;
+            const cell = document.getElementById(cellId);
+            if (cell && !marked.has(lastNumber)) {
+                cell.classList.add('number-highlight');
+                setTimeout(() => {
+                    cell.classList.remove('number-highlight');
+                }, 600);
+            }
+            
+            // Remove animation class after animation
+            setTimeout(() => {
+                lastCalledElement.classList.remove('new');
+            }, 400);
+        }
+
+        function autoMarkCalledNumbers() {
+            const previousMarkedSize = marked.size;
+            
+            numbers.forEach(num => {
+                if (num !== 0 && called.has(num) && !marked.has(num)) {
+                    marked.add(num);
+                }
+            });
+
+            // Only re-render if something changed
+            if (marked.size > previousMarkedSize) {
+                renderCard();
+            }
+        }
+
+        async function syncWithGameState() {
+            try {
+                const response = await fetch('/api/state');
+                const data = await response.json();
+                const newCalled = new Set(data.called);
+                
+                // Check if called numbers changed
+                if (newCalled.size !== called.size || 
+                    !Array.from(newCalled).every(n => called.has(n))) {
+                    called = newCalled;
+                    updateCalledCount();
+                    updateProgressBar();
+                    updateLastCalled();
+                    autoMarkCalledNumbers();
+                    renderCard();
+                }
+            } catch (error) {
+                console.error('Error syncing game state:', error);
+            }
+        }
+
+        // Auto-mark free space and any numbers that were already called
+        function initializeCard() {
+            marked.add(0); // Free space
+            
+            numbers.forEach(num => {
+                if (num !== 0 && called.has(num)) {
+                    marked.add(num);
+                }
+            });
+
+            renderCard();
+            updateLastCalled();
+        }
+
+        // Initialize on page load
+        window.onload = () => {
+            initializeCard();
+            
+            // Poll for game state updates every 500ms (faster response)
+            pollInterval = setInterval(syncWithGameState, 500);
+        };
+
+        // Clean up on page unload
+        window.onbeforeunload = () => {
+            if (pollInterval) clearInterval(pollInterval);
+        };
+    </script>
+</body>
+</html>

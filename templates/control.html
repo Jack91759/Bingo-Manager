@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo Controller</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 2.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .title-icon {
+            font-size: 1em;
+        }
+
+        .btn-icon {
+            font-size: 1.2em;
+            margin-right: 5px;
+            color: inherit;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 0.95em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-undo {
+            background: #ff9500;
+            color: white;
+        }
+
+        .btn-undo:hover {
+            background: #e68900;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 149, 0, 0.4);
+        }
+
+        .btn-reset {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #da190b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.4);
+        }
+
+        .btn-monitor {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-monitor:hover {
+            background: #0b7dda;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+
+        .btn-admin {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-admin:hover {
+            background: #388E3C;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-logout {
+            background: #757575;
+            color: white;
+        }
+
+        .btn-logout:hover {
+            background: #616161;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(117, 117, 117, 0.4);
+        }
+
+        .info-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .game-mode-section {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 12px 18px;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        .game-mode-section label {
+            font-weight: 600;
+            color: #333;
+            font-size: 1em;
+        }
+
+        .game-mode-section select {
+            padding: 8px 12px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            font-size: 1em;
+            color: #333;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .game-mode-section select:hover {
+            border-color: #764ba2;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        .game-mode-section select:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Game Mode Colors */
+        .game-mode-section.mode-classic {
+            background: linear-gradient(135deg, rgba(0, 188, 212, 0.1) 0%, rgba(0, 150, 136, 0.1) 100%);
+            border-color: #00BCD4;
+        }
+
+        .game-mode-section.mode-4corners {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(56, 142, 60, 0.1) 100%);
+            border-color: #4CAF50;
+        }
+
+        .game-mode-section.mode-speed {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(229, 57, 53, 0.1) 100%);
+            border-color: #FF6B6B;
+        }
+
+        .game-mode-section.mode-coverall {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 193, 7, 0.1) 100%);
+            border-color: #FFD700;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .bingo-grid-container {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .bingo-columns {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        /* Ensure 5 columns on mobile and tablet */
+        @media (max-width: 1023px) {
+            .bingo-columns {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+
+        .bingo-column {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Add vertical separators between BINGO letters on mobile/tablet */
+        @media (max-width: 1023px) {
+            .bingo-column:nth-child(1),
+            .bingo-column:nth-child(2),
+            .bingo-column:nth-child(3),
+            .bingo-column:nth-child(4) {
+                border-right: 3px solid #667eea;
+                padding-right: 8px;
+            }
+        }
+
+        /* Add vertical separators between BINGO letters on desktop */
+        @media (min-width: 1024px) {
+            .bingo-column:nth-child(2),
+            .bingo-column:nth-child(4),
+            .bingo-column:nth-child(6),
+            .bingo-column:nth-child(8) {
+                border-right: 3px solid #667eea;
+                padding-right: 12px;
+            }
+        }
+
+        .bingo-letter {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px;
+            border-radius: 6px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.3em;
+        }
+
+        .number-btn {
+            aspect-ratio: 1;
+            font-size: 1em;
+            font-weight: bold;
+            border: 2px solid #ccc;
+            background: white;
+            color: #333;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 20px;
+            min-width: 20px;
+        }
+
+        .number-btn:hover:not(.called) {
+            background: #e8e8ff;
+            border-color: #667eea;
+            transform: scale(1.08);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .number-btn.called {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .called-numbers {
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .called-numbers h2 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .called-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .called-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 0.95em;
+            min-width: 45px;
+            text-align: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            font-size: 1em;
+            padding: 20px;
+            grid-column: 1 / -1;
+        }
+
+        /* DESKTOP LAYOUT */
+        @media (min-width: 1024px) {
+            .container {
+                padding: 30px;
+            }
+
+            h1 {
+                font-size: 2.8em;
+            }
+
+            button {
+                padding: 12px 30px;
+                font-size: 1em;
+            }
+
+            .main-content {
+                grid-template-columns: 2.5fr 1.1fr;
+                gap: 30px;
+            }
+
+            .bingo-grid-container {
+                padding: 20px;
+            }
+
+            .bingo-columns {
+                grid-template-columns: repeat(10, 1fr);
+                gap: 12px;
+            }
+
+            .bingo-column {
+                gap: 10px;
+            }
+
+            .number-btn {
+                font-size: 1.1em;
+                min-height: 120px;
+                min-width: 130px;
+            }
+
+            .called-list {
+                max-height: 500px;
+            }
+
+            .game-mode-section {
+                padding: 15px;
+                gap: 15px;
+            }
+        }
+
+        /* MOBILE/IPHONE LAYOUT */
+        @media (max-width: 767px) {
+            .container {
+                padding: 15px;
+                gap: 15px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .controls {
+                gap: 8px;
+            }
+
+            button {
+                padding: 10px 15px;
+                font-size: 0.85em;
+                flex: 1;
+                min-width: 90px;
+            }
+
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .bingo-grid-container {
+                padding: 12px;
+            }
+
+            .bingo-columns {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 6px;
+            }
+
+            .bingo-column {
+                gap: 6px;
+            }
+
+            .bingo-letter {
+                font-size: 1.1em;
+                padding: 6px;
+            }
+
+            .bingo-letter:empty::before {
+                content: '—';
+                visibility: hidden;
+            }
+
+            .number-btn {
+                font-size: 0.9em;
+                min-height: 38px;
+                min-width: 38px;
+            }
+
+            .sidebar {
+                gap: 12px;
+            }
+
+            .called-numbers {
+                padding: 12px;
+            }
+
+            .called-numbers h2 {
+                font-size: 1em;
+            }
+
+            .called-badge {
+                font-size: 0.85em;
+                padding: 5px 10px;
+                min-width: 40px;
+            }
+
+            .called-list {
+                max-height: 250px;
+            }
+
+            .info-section {
+                font-size: 1.1em;
+                padding: 12px;
+            }
+        }
+
+        /* TABLET LAYOUT */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 2.2em;
+            }
+
+            .main-content {
+                grid-template-columns: 2fr 1fr;
+                gap: 20px;
+            }
+
+            .number-btn {
+                font-size: 1em;
+                min-height: 45px;
+                min-width: 45px;
+            }
+
+            .game-mode-section {
+                padding: 14px;
+                gap: 12px;
+            }
+        }
+
+        /* Scrollbar styling for called list */
+        .called-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .called-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .called-list::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        .called-list::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>BINGO CONTROLLER</h1>
+            <div class="controls">
+                <button class="btn-undo" onclick="undoNumber()"><span class="btn-icon">↶</span> Undo</button>
+                <button class="btn-monitor" onclick="openMonitor()"><span class="btn-icon">📺</span> Monitor</button>
+                <button class="btn-admin" onclick="openAdminCards()"><span class="btn-icon">📋</span> All Cards</button>
+                <button class="btn-reset" onclick="resetGame()"><span class="btn-icon">⟳</span> Reset</button>
+                <button class="btn-logout" onclick="logout()"><span class="btn-icon">🚪</span> Logout</button>
+            </div>
+        </div>
+
+        <div class="info-section">
+            Numbers Called: <span id="count">0</span>
+        </div>
+
+        <div class="game-mode-section">
+            <label for="gameModeSelect">Game Mode:</label>
+            <select id="gameModeSelect" onchange="setGameMode()">
+                <option value="Classic">Classic</option>
+                <option value="4 corners">4 corners</option>
+                <option value="Speed">Speed</option>
+                <option value="Coverall">Coverall</option>
+            </select>
+        </div>
+
+        <div class="main-content">
+            <div class="bingo-grid-container">
+                <div class="bingo-columns" id="bingoGrid"></div>
+            </div>
+
+            <div class="sidebar">
+                <div class="called-numbers">
+                    <h2>📋 Called</h2>
+                    <div class="called-list" id="calledList">
+                        <div class="empty-state">None yet</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const TOTAL_BALLS = {{ total_balls }};
+        const BINGO_COLUMNS = [
+            { letter: 'B', ranges: [[1, 8], [9, 15]] },
+            { letter: 'I', ranges: [[16, 23], [24, 30]] },
+            { letter: 'N', ranges: [[31, 38], [39, 45]] },
+            { letter: 'G', ranges: [[46, 53], [54, 60]] },
+            { letter: 'O', ranges: [[61, 68], [69, 75]] }
+        ];
+        let calledNumbers = [];
+
+        // Initialize the grid with BINGO columns (2 columns per letter for desktop)
+        function initializeGrid() {
+            const grid = document.getElementById('bingoGrid');
+            grid.innerHTML = '';
+            
+            for (let letterIdx = 0; letterIdx < BINGO_COLUMNS.length; letterIdx++) {
+                const { letter, ranges } = BINGO_COLUMNS[letterIdx];
+                
+                for (let rangeIdx = 0; rangeIdx < ranges.length; rangeIdx++) {
+                    const column = document.createElement('div');
+                    column.className = 'bingo-column';
+                    
+                    // Add BINGO letter header (only for first column of each letter on desktop)
+                    const letterHeader = document.createElement('div');
+                    letterHeader.className = 'bingo-letter';
+                    letterHeader.textContent = rangeIdx === 0 ? letter : '—';
+                    column.appendChild(letterHeader);
+                    
+                    // Add numbers for this range
+                    const [start, end] = ranges[rangeIdx];
+                    for (let i = start; i <= end; i++) {
+                        const btn = document.createElement('button');
+                        btn.className = 'number-btn';
+                        btn.textContent = i;
+                        btn.onclick = () => callNumber(i);
+                        btn.id = `num-${i}`;
+                        column.appendChild(btn);
+                    }
+                    
+                    grid.appendChild(column);
+                }
+            }
+        }
+
+        // Call a number
+        function callNumber(number) {
+            fetch(`/api/call/${number}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateUI(data.called);
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Undo last number
+        function undoNumber() {
+            fetch('/api/undo', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateUI(data.called);
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Reset game
+        function resetGame() {
+            if (confirm('Are you sure you want to reset the game?')) {
+                fetch('/api/reset', {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    updateUI(data.called);
+                })
+                .catch(error => console.error('Error:', error));
+            }
+        }
+
+        // Open monitor in new window
+        function openMonitor() {
+            window.open('/monitor', 'monitor', 'width=600,height=400');
+        }
+
+        // Update UI
+        function updateUI(called) {
+            calledNumbers = called;
+            
+            // Update count
+            document.getElementById('count').textContent = called.length;
+
+            // Update button states
+            for (let i = 1; i <= TOTAL_BALLS; i++) {
+                const btn = document.getElementById(`num-${i}`);
+                if (called.includes(i)) {
+                    btn.classList.add('called');
+                } else {
+                    btn.classList.remove('called');
+                }
+            }
+
+            // Update called list
+            const list = document.getElementById('calledList');
+            if (called.length === 0) {
+                list.innerHTML = '<div class="empty-state">None yet</div>';
+            } else {
+                list.innerHTML = called.map(num => `<div class="called-badge">${num}</div>`).join('');
+            }
+        }
+
+        // Update game mode color based on mode
+        function updateGameModeColor(mode) {
+            const section = document.querySelector('.game-mode-section');
+            // Remove all mode classes
+            section.classList.remove('mode-classic', 'mode-4corners', 'mode-speed', 'mode-coverall');
+            // Add the appropriate class based on mode
+            if (mode === 'Classic') {
+                section.classList.add('mode-classic');
+            } else if (mode === '4 corners') {
+                section.classList.add('mode-4corners');
+            } else if (mode === 'Speed') {
+                section.classList.add('mode-speed');
+            } else if (mode === 'Coverall') {
+                section.classList.add('mode-coverall');
+            }
+        }
+
+        // Load initial state
+        function loadState() {
+            fetch('/api/state')
+            .then(response => response.json())
+            .then(data => {
+                updateUI(data.called);
+                if (data.game_mode) {
+                    document.getElementById('gameModeSelect').value = data.game_mode;
+                    updateGameModeColor(data.game_mode);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Set game mode
+        function setGameMode() {
+            const mode = document.getElementById('gameModeSelect').value;
+            // Update color immediately
+            updateGameModeColor(mode);
+            
+            fetch(`/api/game-mode/${mode}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    alert(data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Initialize on page load
+        window.onload = () => {
+            initializeGrid();
+            loadState();
+        };
+
+        // Open admin cards page
+        function openAdminCards() {
+            window.location.href = '/admin-cards';
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = '/logout';
+            }
+        }
+    </script>
+</body>
+</html>

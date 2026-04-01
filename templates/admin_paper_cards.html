@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paper Cards Checker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2em;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn-nav {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-nav:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .info-text {
+            color: #666;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .paper-card {
+            background: white;
+            border: 3px solid #ddd;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .paper-card.bingo {
+            border-color: #FFD700;
+            background: #FFFACD;
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .card-header h2 {
+            color: #333;
+            font-size: 1.1em;
+            margin: 0;
+        }
+
+        .player-name {
+            color: #666;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .bingo-badge {
+            background: #FFD700;
+            color: #333;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85em;
+            display: none;
+        }
+
+        .bingo-badge.show {
+            display: block;
+        }
+
+        .bingo-circle {
+            width: 24px;
+            height: 24px;
+            background: #FFD700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.7em;
+        }
+
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .bingo-number {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #999;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.9em;
+            background: white;
+            color: #333;
+            transition: all 0.2s ease;
+            cursor: default;
+        }
+
+        .bingo-number.free {
+            border-color: #667eea;
+            background: #e8eaf6;
+            color: #667eea;
+        }
+
+        .bingo-number.marked {
+            background: #4CAF50;
+            color: white;
+            border-color: #2e7d32;
+            font-size: 1em;
+            font-weight: 700;
+        }
+
+        .bingo-number.marked::after {
+            content: '✓';
+            margin-left: 2px;
+        }
+
+        .card-footer {
+            text-align: center;
+            font-size: 0.85em;
+            color: #999;
+            margin-top: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+            font-size: 1.1em;
+        }
+
+        .sort-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 20px;
+            border-radius: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .sort-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .sort-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .sort-btn {
+            background: #f0f0f0;
+            border: 2px solid #ddd;
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9em;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .sort-btn:hover {
+            border-color: #667eea;
+            background: #e8eaf6;
+        }
+
+        .sort-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .sort-indicator {
+            font-size: 1.2em;
+            margin-left: 5px;
+            display: inline-block;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 15px;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: #999;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-value.bingo {
+            color: #FFD700;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sort-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .sort-buttons {
+                width: 100%;
+            }
+
+            .stats-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>📋 Paper Cards Checker</h1>
+                <div class="info-text">Cards automatically mark called numbers and detect bingo</div>
+            </div>
+            <div class="header-buttons">
+                <div class="info-text" id="calledCount">Called: 0 numbers</div>
+                <a href="/admin-add-paper-card" class="btn-nav">+ Add Card</a>
+                <a href="/control" class="btn-nav">← Control Panel</a>
+            </div>
+        </div>
+
+        <div class="stats-bar" id="statsBar">
+            <div class="stat-item">
+                <span class="stat-label">Total Cards</span>
+                <span class="stat-value" id="totalCards">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Bingo Cards</span>
+                <span class="stat-value bingo" id="bingoCards">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Numbers Called</span>
+                <span class="stat-value" id="numbersCalled">0</span>
+            </div>
+        </div>
+
+        <div class="sort-section">
+            <span class="sort-label">Sort by:</span>
+            <div class="sort-buttons" id="sortButtons">
+                <button class="sort-btn active" data-sort="date" onclick="sortCards('date')">
+                    📅 Date Added <span class="sort-indicator" data-sort="date">↓</span>
+                </button>
+                <button class="sort-btn" data-sort="name" onclick="sortCards('name')">
+                    👤 Player Name <span class="sort-indicator" data-sort="name"></span>
+                </button>
+                <button class="sort-btn" data-sort="cardid" onclick="sortCards('cardid')">
+                    🆔 Card ID <span class="sort-indicator" data-sort="cardid"></span>
+                </button>
+                <button class="sort-btn" data-sort="bingo" onclick="sortCards('bingo')">
+                    🎉 Bingo First <span class="sort-indicator" data-sort="bingo"></span>
+                </button>
+                <button class="sort-btn" data-sort="marked" onclick="sortCards('marked')">
+                    ✓ Marked Count <span class="sort-indicator" data-sort="marked"></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="cards-grid" id="cardsGrid">
+            <div class="empty-state">No paper cards registered yet</div>
+        </div>
+    </div>
+
+    <script>
+        const initialCards = {{ cards|tojson }};
+        const initialCalled = {{ called|tojson }};
+        
+        let cardsData = [...initialCards];
+        let calledNumbers = new Set(initialCalled);
+        let currentSort = { field: 'date', ascending: false };
+
+        function getMarkedNumbers(cardNumbers) {
+            const cardSet = new Set(cardNumbers);
+            const marked = Array.from(cardSet).filter(num => calledNumbers.has(num));
+            marked.push(0); // Always include free space
+            return marked;
+        }
+
+        function checkBingo(numbers, marked) {
+            const markedSet = new Set(marked);
+            
+            // Check rows
+            for (let row = 0; row < 5; row++) {
+                if (Array.from({length: 5}, (_, col) => {
+                    const num = numbers[row * 5 + col];
+                    return num === 0 || markedSet.has(num);
+                }).every(x => x)) {
+                    return true;
+                }
+            }
+            
+            // Check columns
+            for (let col = 0; col < 5; col++) {
+                if (Array.from({length: 5}, (_, row) => {
+                    const num = numbers[row * 5 + col];
+                    return num === 0 || markedSet.has(num);
+                }).every(x => x)) {
+                    return true;
+                }
+            }
+            
+            // Check diagonals
+            if (Array.from({length: 5}, (_, i) => {
+                const num = numbers[i * 5 + i];
+                return num === 0 || markedSet.has(num);
+            }).every(x => x)) {
+                return true;
+            }
+            
+            if (Array.from({length: 5}, (_, i) => {
+                const num = numbers[i * 5 + (4 - i)];
+                return num === 0 || markedSet.has(num);
+            }).every(x => x)) {
+                return true;
+            }
+            
+            return false;
+        }
+
+        function createBingoGrid(numbers, marked) {
+            const markedSet = new Set(marked);
+            const gridHTML = numbers.map((num, index) => {
+                const row = Math.floor(index / 5);
+                const col = index % 5;
+                const isCenter = row === 2 && col === 2;
+                const isMarked = markedSet.has(num);
+                
+                return `<div class="bingo-number ${isCenter ? 'free' : ''} ${isMarked ? 'marked' : ''}" title="Number: ${num}">
+                    ${num === 0 ? 'FREE' : num}
+                </div>`;
+            }).join('');
+            return gridHTML;
+        }
+
+        function sortCards(field) {
+            // Toggle sort direction if same field
+            if (currentSort.field === field) {
+                currentSort.ascending = !currentSort.ascending;
+            } else {
+                currentSort.field = field;
+                currentSort.ascending = field === 'bingo' ? false : true;
+            }
+
+            // Update button states
+            document.querySelectorAll('.sort-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-sort="${field}"]`).parentElement.classList.add('active');
+
+            // Update indicators
+            document.querySelectorAll('.sort-indicator').forEach(ind => {
+                ind.textContent = '';
+            });
+            const activeIndicator = document.querySelector(`[data-sort="${field}"] .sort-indicator`);
+            if (activeIndicator) {
+                activeIndicator.textContent = currentSort.ascending ? '↑' : '↓';
+            }
+
+            cardsData.sort((a, b) => {
+                let aValue, bValue;
+
+                switch(field) {
+                    case 'date':
+                        aValue = new Date(a.created_at);
+                        bValue = new Date(b.created_at);
+                        break;
+                    case 'name':
+                        aValue = a.player_name.toLowerCase();
+                        bValue = b.player_name.toLowerCase();
+                        break;
+                    case 'cardid':
+                        aValue = a.card_id.toLowerCase();
+                        bValue = b.card_id.toLowerCase();
+                        break;
+                    case 'bingo':
+                        aValue = a.has_bingo ? 1 : 0;
+                        bValue = b.has_bingo ? 1 : 0;
+                        break;
+                    case 'marked':
+                        aValue = getMarkedNumbers(a.numbers).length;
+                        bValue = getMarkedNumbers(b.numbers).length;
+                        break;
+                }
+
+                if (aValue < bValue) return currentSort.ascending ? -1 : 1;
+                if (aValue > bValue) return currentSort.ascending ? 1 : -1;
+                return 0;
+            });
+
+            renderCards();
+        }
+
+        function updateStatistics() {
+            const totalCards = cardsData.length;
+            const bingoCount = cardsData.filter(c => checkBingo(c.numbers, getMarkedNumbers(c.numbers))).length;
+            
+            document.getElementById('totalCards').textContent = totalCards;
+            document.getElementById('bingoCards').textContent = bingoCount;
+            document.getElementById('numbersCalled').textContent = calledNumbers.size;
+        }
+
+        function createBingoGrid(numbers, marked) {
+            const markedSet = new Set(marked);
+            const gridHTML = numbers.map((num, index) => {
+                const row = Math.floor(index / 5);
+                const col = index % 5;
+                const isCenter = row === 2 && col === 2;
+                const isMarked = markedSet.has(num);
+                
+                return `<div class="bingo-number ${isCenter ? 'free' : ''} ${isMarked ? 'marked' : ''}" title="Number: ${num}">
+                    ${num === 0 ? 'FREE' : num}
+                </div>`;
+            }).join('');
+            return gridHTML;
+        }
+
+        function renderCards() {
+            const grid = document.getElementById('cardsGrid');
+            
+            if (cardsData.length === 0) {
+                grid.innerHTML = '<div class="empty-state">No paper cards registered yet</div>';
+                return;
+            }
+
+            grid.innerHTML = cardsData.map(card => {
+                const marked = getMarkedNumbers(card.numbers);
+                const hasBingo = checkBingo(card.numbers, marked);
+                const bingoGrid = createBingoGrid(card.numbers, marked);
+                
+                return `
+                    <div class="paper-card ${hasBingo ? 'bingo' : ''}">
+                        <div class="card-header">
+                            <div>
+                                <h2>${card.card_id}</h2>
+                                <div class="player-name">${card.player_name}</div>
+                            </div>
+                            ${hasBingo ? '<div class="bingo-circle">🎉</div>' : ''}
+                        </div>
+                        <div class="bingo-grid">
+                            ${bingoGrid}
+                        </div>
+                        <div class="card-footer">
+                            ${hasBingo ? '<strong style="color: #FFD700; font-size: 1.1em;">🎊 BINGO! 🎊</strong>' : `Marked: ${marked.length - 1}/${card.numbers.filter(n => n !== 0).length}`}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            updateStatistics();
+        }
+
+        function updateCalledCount() {
+            document.getElementById('calledCount').textContent = `Called: ${calledNumbers.size} number${calledNumbers.size !== 1 ? 's' : ''}`;
+        }
+
+        async function fetchGameState() {
+            try {
+                const response = await fetch('/api/state');
+                const data = await response.json();
+                
+                if (data.called.length !== calledNumbers.size || 
+                    !data.called.every(n => calledNumbers.has(n))) {
+                    calledNumbers = new Set(data.called);
+                    updateCalledCount();
+                    renderCards();
+                }
+            } catch (error) {
+                console.error('Error fetching game state:', error);
+            }
+        }
+
+        // Initial render
+        window.onload = () => {
+            renderCards();
+            updateCalledCount();
+            
+            // Poll for updates every 1 second
+            setInterval(fetchGameState, 1000);
+        };
+
+        // Listen for visibility changes to optimize updates
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                // Stop polling when tab is not visible
+            } else {
+                // Resume polling when tab becomes visible
+                fetchGameState();
+            }
+        });
+    </script>
+</body>
+</html>

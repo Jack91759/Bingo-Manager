@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - All Cards</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2em;
+        }
+
+        .game-info {
+            text-align: right;
+            font-size: 0.95em;
+            color: #666;
+        }
+
+        .game-info p {
+            margin: 5px 0;
+        }
+
+        .btn-control {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-control:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .filter-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        .cards-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .card-item {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .card-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .card-item.bingo {
+            border-color: #4CAF50;
+            background: #f0f7f0;
+        }
+
+        .card-info {
+            flex: 1;
+        }
+
+        .card-id {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .player-name {
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 8px;
+        }
+
+        .card-status {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9em;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85em;
+            text-transform: uppercase;
+        }
+
+        .status-badge.no-bingo {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge.bingo {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .btn-view {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #0b7dda;
+        }
+
+        .btn-check {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-check:hover {
+            background: #388E3C;
+        }
+
+        .btn-delete {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #da190b;
+        }
+
+        .btn-edit {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #e68900;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            padding: 30px;
+            border: 1px solid #888;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 15px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .form-actions button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-save {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-save:hover {
+            background: #764ba2;
+        }
+
+        .btn-cancel {
+            background: #ddd;
+            color: #333;
+        }
+
+        .btn-cancel:hover {
+            background: #bbb;
+        }
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state p {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .card-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .card-actions {
+                width: 100%;
+                margin-top: 15px;
+            }
+
+            .card-actions button {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 All Digital Cards</h1>
+            <div class="game-info">
+                <p><strong>Numbers Called:</strong> {{ called|length }}/75</p>
+                <a href="/admin-paper-cards" class="btn-control">📄 Paper Cards</a>
+                <a href="/control" class="btn-control">← To Control Panel</a>
+            </div>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" onclick="filterCards('all')">All Cards</button>
+            <button class="filter-btn" onclick="filterCards('bingo')">Bingo Winners</button>
+            <button class="filter-btn" onclick="filterCards('pending')">No Bingo</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalCards">0</div>
+                <div class="stat-label">Total Cards</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="bingoCount">0</div>
+                <div class="stat-label">Bingo Winners</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingCount">0</div>
+                <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="callCount">{{ called|length }}</div>
+                <div class="stat-label">Numbers Called</div>
+            </div>
+        </div>
+
+        <div class="cards-grid" id="cardsGrid">
+            <div class="empty-state">
+                <p>No cards registered yet</p>
+            </div>
+        </div>
+
+        <!-- Edit Modal -->
+        <div id="editModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Edit Card</h2>
+                    <button class="close-btn" onclick="closeModal('editModal')">×</button>
+                </div>
+                <form onsubmit="saveCard(event)">
+                    <div class="form-group">
+                        <label for="editCardId">Card ID (read-only)</label>
+                        <input type="text" id="editCardId" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPlayerName">Player Name</label>
+                        <input type="text" id="editPlayerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editRoundNumber">Round Number</label>
+                        <input type="number" id="editRoundNumber" min="1" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-save">Save Changes</button>
+                        <button type="button" class="btn-cancel" onclick="closeModal('editModal')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cardsData = {{ cards|tojson }};
+        const calledNumbers = {{ called|tojson }};
+        let currentFilter = 'all';
+        let editingCardId = null;
+
+        function renderCards() {
+            const grid = document.getElementById('cardsGrid');
+            
+            let filtered = cardsData;
+            if (currentFilter === 'bingo') {
+                filtered = cardsData.filter(c => c.has_bingo);
+            } else if (currentFilter === 'pending') {
+                filtered = cardsData.filter(c => !c.has_bingo);
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="empty-state"><p>No cards found</p></div>';
+                updateStats(cardsData);
+                return;
+            }
+
+            grid.innerHTML = filtered.map(card => `
+                <div class="card-item ${card.has_bingo ? 'bingo' : ''}">
+                    <div class="card-info">
+                        <div class="card-id">ID: ${card.card_id}</div>
+                        <div class="player-name">Player: ${card.player_name}</div>
+                        <div class="card-status">
+                            <span class="status-item">
+                                <span class="status-badge ${card.has_bingo ? 'bingo' : 'no-bingo'}">
+                                    ${card.has_bingo ? '✓ BINGO' : 'PENDING'}
+                                </span>
+                            </span>
+                            <span class="status-item">Round: #${card.round_number}</span>
+                            <span class="status-item">Registered: ${new Date(card.created_at).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-view" onclick="viewCard('${card.card_id}')">View Card</button>
+                        <button class="btn-check" onclick="checkBingo(${card.id}, '${card.card_id}')">Check Bingo</button>
+                        <button class="btn-edit" onclick="openEditModal(${card.id}, '${card.card_id}', '${card.player_name}', ${card.round_number})">Edit</button>
+                        <button class="btn-delete" onclick="deleteCard(${card.id}, '${card.card_id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+
+            updateStats(cardsData);
+        }
+
+        function updateStats(allCards) {
+            const totalCards = allCards.length;
+            const bingoCards = allCards.filter(c => c.has_bingo).length;
+            const pendingCards = totalCards - bingoCards;
+
+            document.getElementById('totalCards').textContent = totalCards;
+            document.getElementById('bingoCount').textContent = bingoCards;
+            document.getElementById('pendingCount').textContent = pendingCards;
+        }
+
+        function filterCards(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            renderCards();
+        }
+
+        function viewCard(cardId) {
+            window.location.href = `/card/${cardId}`;
+        }
+
+        function checkBingo(cardDbId, cardId) {
+            fetch(`/api/admin-check-bingo/${cardDbId}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const card = cardsData.find(c => c.id === cardDbId);
+                    if (card) {
+                        card.has_bingo = data.has_bingo;
+                    }
+                    renderCards();
+                    
+                    if (data.has_bingo) {
+                        alert('🎉 BINGO CONFIRMED!');
+                    } else {
+                        alert('No bingo pattern detected yet');
+                    }
+                } else {
+                    alert('Error checking bingo: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+        }
+
+        function openEditModal(cardId, cardIdStr, playerName, roundNumber) {
+            editingCardId = cardId;
+            document.getElementById('editCardId').value = cardIdStr;
+            document.getElementById('editPlayerName').value = playerName;
+            document.getElementById('editRoundNumber').value = roundNumber;
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            editingCardId = null;
+        }
+
+        function saveCard(event) {
+            event.preventDefault();
+            
+            const playerName = document.getElementById('editPlayerName').value.trim();
+            const roundNumber = parseInt(document.getElementById('editRoundNumber').value);
+
+            fetch(`/api/update-card/${editingCardId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    player_name: playerName,
+                    round_number: roundNumber
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const card = cardsData.find(c => c.id === editingCardId);
+                    if (card) {
+                        card.player_name = playerName;
+                        card.round_number = roundNumber;
+                    }
+                    closeModal('editModal');
+                    renderCards();
+                    alert('Card updated successfully!');
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+        }
+
+        function deleteCard(cardId, cardIdStr) {
+            if (confirm(`Are you sure you want to delete card ${cardIdStr}?`)) {
+                fetch(`/api/delete-card/${cardId}`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove from array
+                        const index = cardsData.findIndex(c => c.id === cardId);
+                        if (index > -1) {
+                            cardsData.splice(index, 1);
+                        }
+                        renderCards();
+                        alert('Card deleted successfully!');
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred');
+                });
+            }
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target === modal) {
+                closeModal('editModal');
+            }
+        }
+
+        // Initial render
+        window.onload = () => {
+            renderCards();
+        };
+    </script>
+</body>
+</html>

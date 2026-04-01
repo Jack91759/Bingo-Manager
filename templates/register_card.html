@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Card - Bingo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1em;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: #666;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-btn:hover {
+            color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-back {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-back:hover {
+            background: #d0d0d0;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .message.success {
+            display: block;
+            background: #c8e6c9;
+            color: #2e7d32;
+            border: 2px solid #2e7d32;
+        }
+
+        .message.error {
+            display: block;
+            background: #ffcdd2;
+            color: #c62828;
+            border: 2px solid #c62828;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎰 Register Card</h1>
+            <p class="subtitle">Create your bingo card</p>
+        </div>
+
+        <div class="message" id="message"></div>
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Registering card...</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('auto')">Auto-Generate</button>
+            <button class="tab-btn" onclick="switchTab('manual')">Input Paper Card</button>
+        </div>
+
+        <!-- AUTO-GENERATE TAB -->
+        <div class="tab-content active" id="auto-tab">
+            <form id="autoGenerateForm" onsubmit="handleAutoGenerate(event)">
+                <div class="form-group">
+                    <label for="cardIdAuto">Card ID *</label>
+                    <input 
+                        type="text" 
+                        id="cardIdAuto" 
+                        placeholder="e.g., CARD-001" 
+                        required 
+                        pattern="[A-Za-z0-9\-]+"
+                        title="Card ID can contain letters, numbers, and hyphens"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="playerNameAuto">Player Name *</label>
+                    <input 
+                        type="text" 
+                        id="playerNameAuto" 
+                        placeholder="Enter your name" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group" style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    <p style="color: #666; font-size: 0.95em; margin: 0;">A random card will be generated with numbers in the correct BINGO column ranges.</p>
+                </div>
+
+                <div class="buttons">
+                    <button type="submit" class="btn-submit">Generate & Register</button>
+                    <button type="button" class="btn-back" onclick="window.location.href='/'">Back</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- MANUAL INPUT TAB -->
+        <div class="tab-content" id="manual-tab">
+            <form id="paperCardForm" onsubmit="handlePaperCard(event)">
+                <div class="form-group">
+                    <label for="cardIdManual">Card ID *</label>
+                    <input 
+                        type="text" 
+                        id="cardIdManual" 
+                        placeholder="e.g., CARD-001" 
+                        required 
+                        pattern="[A-Za-z0-9\-]+"
+                        title="Card ID can contain letters, numbers, and hyphens"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="playerNameManual">Player Name *</label>
+                    <input 
+                        type="text" 
+                        id="playerNameManual" 
+                        placeholder="Enter your name" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Enter your 25 numbers in grid order (5 columns x 5 rows)</label>
+                    <p style="color: #666; font-size: 0.9em; margin-bottom: 12px;">
+                        <strong>Column Rules:</strong> B (1-15) | I (16-30) | N (31-45) | G (46-60) | O (61-75)
+                        - Free space in center (row 3, col 3)
+                    </p>
+                </div>
+
+                <div id="numberGrid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 20px;">
+                    <!-- Will be generated by JavaScript -->
+                </div>
+
+                <div class="form-group">
+                    <button type="button" class="btn-back" onclick="generateNumberInputs()" style="background: #2196F3; color: white; width: 100%; margin-bottom: 10px; display: block;">Generate Input Fields</button>
+                </div>
+
+                <div class="buttons">
+                    <button type="submit" class="btn-submit">Register Card</button>
+                    <button type="button" class="btn-back" onclick="window.location.href='/'">Back</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        function switchTab(tab) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tab + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Generate input fields for manual card entry
+        function generateNumberInputs() {
+            const grid = document.getElementById('numberGrid');
+            grid.innerHTML = '';
+            
+            const BINGO_LABELS = ['B', 'I', 'N', 'G', 'O'];
+            const BINGO_RANGES = [[1, 15], [16, 30], [31, 45], [46, 60], [61, 75]];
+            
+            for (let row = 0; row < 5; row++) {
+                for (let col = 0; col < 5; col++) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.id = `num_${row}_${col}`;
+                    input.min = BINGO_RANGES[col][0];
+                    input.max = BINGO_RANGES[col][1];
+                    input.placeholder = row === 2 && col === 2 ? 'FREE' : `${BINGO_LABELS[col]}`;
+                    input.style.padding = '8px';
+                    input.style.border = '2px solid #667eea';
+                    input.style.borderRadius = '4px';
+                    input.style.textAlign = 'center';
+                    input.style.fontWeight = 'bold';
+                    input.style.cursor = row === 2 && col === 2 ? 'default' : 'text';
+                    
+                    if (row === 2 && col === 2) {
+                        input.value = 0;
+                        input.disabled = true;
+                        input.style.background = '#d4edda';
+                        input.style.color = '#155724';
+                    }
+                    
+                    grid.appendChild(input);
+                }
+            }
+        }
+
+        // Handle auto-generate form submission
+        function handleAutoGenerate(event) {
+            event.preventDefault();
+
+            const cardId = document.getElementById('cardIdAuto').value.trim();
+            const playerName = document.getElementById('playerNameAuto').value.trim();
+
+            const form = document.getElementById('autoGenerateForm');
+            const message = document.getElementById('message');
+            const loading = document.getElementById('loading');
+
+            form.style.display = 'none';
+            loading.style.display = 'block';
+
+            fetch('/api/register-card', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    card_id: cardId,
+                    player_name: playerName
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                message.style.display = 'block';
+
+                if (data.success) {
+                    message.className = 'message success';
+                    message.textContent = `✓ Card registered! Your Card ID: ${data.card_id}`;
+                    setTimeout(() => {
+                        window.location.href = `/card/${data.card_id}`;
+                    }, 2000);
+                } else {
+                    message.className = 'message error';
+                    message.textContent = `✗ ${data.message}`;
+                    form.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                loading.style.display = 'none';
+                message.style.display = 'block';
+                message.className = 'message error';
+                message.textContent = 'An error occurred. Please try again.';
+                form.style.display = 'block';
+            });
+        }
+
+        // Handle paper card form submission
+        function handlePaperCard(event) {
+            event.preventDefault();
+
+            const cardId = document.getElementById('cardIdManual').value.trim();
+            const playerName = document.getElementById('playerNameManual').value.trim();
+
+            // Collect entered numbers
+            const cardNumbers = [];
+            for (let row = 0; row < 5; row++) {
+                for (let col = 0; col < 5; col++) {
+                    const input = document.getElementById(`num_${row}_${col}`);
+                    const value = parseInt(input.value);
+                    
+                    if (isNaN(value)) {
+                        alert(`Please fill in all number fields. Missing: Row ${row + 1}, Column ${col + 1}`);
+                        return;
+                    }
+                    cardNumbers.push(value);
+                }
+            }
+
+            // Validate numbers
+            const BINGO_RANGES = [[1, 15], [16, 30], [31, 45], [46, 60], [61, 75]];
+            let valid = true;
+            
+            for (let row = 0; row < 5; row++) {
+                for (let col = 0; col < 5; col++) {
+                    const num = cardNumbers[row * 5 + col];
+                    const [min, max] = BINGO_RANGES[col];
+                    
+                    if (!(row === 2 && col === 2) && (num < min || num > max)) {
+                        alert(`Invalid number in Row ${row + 1}, Column ${col + 1}. ` +
+                              `Column must be between ${min} and ${max}.`);
+                        valid = false;
+                        break;
+                    }
+                }
+                if (!valid) break;
+            }
+
+            if (!valid) return;
+
+            const form = document.getElementById('paperCardForm');
+            const message = document.getElementById('message');
+            const loading = document.getElementById('loading');
+
+            form.style.display = 'none';
+            loading.style.display = 'block';
+
+            fetch('/api/register-card', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    card_id: cardId,
+                    player_name: playerName,
+                    card_numbers: cardNumbers
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                message.style.display = 'block';
+
+                if (data.success) {
+                    message.className = 'message success';
+                    message.textContent = `✓ Card registered! Your Card ID: ${data.card_id}`;
+                    setTimeout(() => {
+                        window.location.href = `/card/${data.card_id}`;
+                    }, 2000);
+                } else {
+                    message.className = 'message error';
+                    message.textContent = `✗ ${data.message}`;
+                    form.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                loading.style.display = 'none';
+                message.style.display = 'block';
+                message.className = 'message error';
+                message.textContent = 'An error occurred. Please try again.';
+                form.style.display = 'block';
+            });
+        }
+    </script>
+</body>
+</html>
